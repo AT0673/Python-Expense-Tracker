@@ -6,15 +6,15 @@ def main():
     expense_file_path = "expenses.csv"
 
     #Get user input for expenses
-    #expense = get_expense_details()
+    expense = get_expense_details()
 
     #Write expenses to a file
-    #write_expense_to_file(expense, expense_file_path)
+    write_expense_to_file(expense, expense_file_path)
 
     #Read expenses from a file and summarize them
     summarize_expenses(expense_file_path)
 
-#def get_expense_details():
+def get_expense_details():
     print("Getting expense details...")
     expense_name = input("Enter expense name: ")
     expense_amount = float(input("Enter expense amount: "))
@@ -57,7 +57,7 @@ def main():
     return expense
 
 
-#def write_expense_to_file(expense, expense_file_path):
+def write_expense_to_file(expense, expense_file_path):
     print(f"Saving user expense: {expense} to {expense_file_path}")
     with open(expense_file_path, 'a') as file:
         file.write(f"{expense['name']},{expense['amount']},{expense['category']}\n")
@@ -65,14 +65,23 @@ def main():
 
 # This function will read expenses from a file and summarize them
 def summarize_expenses(expense_file_path):
-    print("Summarizing expenses...")
+    print("\n=== 💰 Expense Summary 💰 ===\n")
     with open(expense_file_path, 'r') as file:
         expenses = file.readlines()
+    
+    # Dictionary for category emojis
+    category_emojis = {
+        "Food": "🍔",
+        "Transport": "🚗",
+        "Utilities": "🏠",
+        "Entertainment": "🎮",
+        "Other": "📦"
+    }
+
     for expense in expenses:
         name, amount, category = expense.strip().split(',')
-        print(f"  Name    : {name}")
-        print(f"  Amount  : ${amount}")
-        print(f"  Category: {category}")
+        emoji = category_emojis.get(category, "📝")
+        print(f"{emoji} {category} - {name}: ${float(amount):.2f}")
 
     amount_by_category = {}
     for expense in expenses:
@@ -82,6 +91,16 @@ def summarize_expenses(expense_file_path):
             amount_by_category[category] += amount
         else:
             amount_by_category[category] = amount
+    
+    print("\n=== 📊 Category Totals 📊 ===")
+    for category, total in amount_by_category.items():
+        emoji = category_emojis.get(category, "📝")
+        print(f"{emoji} {category}: ${total:.2f}")
+    
+    grand_total = sum(amount_by_category.values())
+    print("\n=== 💵 Grand Total 💵 ===")
+    print(f"Total Expenses: ${grand_total:.2f}")
+    print("\n" + "=" * 30 + "\n")
 
 
 if __name__ == "__main__":
