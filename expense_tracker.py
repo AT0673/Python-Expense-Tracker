@@ -5,14 +5,21 @@ def main():
     print("Welcome to the Expense Tracker!")
     expense_file_path = "expenses.csv"
 
-    #Get user input for expenses
+    #Get user input for expenses and budget
+    budget = get_budget()
     expense = get_expense_details()
 
     #Write expenses to a file
     write_expense_to_file(expense, expense_file_path)
 
     #Read expenses from a file and summarize them
-    summarize_expenses(expense_file_path)
+    summarize_expenses(expense_file_path, budget)
+
+def get_budget():
+    print("Getting budget details...")
+    budget_amount = float(input("Enter your budget amount: "))
+    print(f"You've set a budget of ${budget_amount:.2f} for this year.")
+    return budget_amount
 
 def get_expense_details():
     print("Getting expense details...")
@@ -75,7 +82,7 @@ def write_expense_to_file(expense, expense_file_path):
 
 
 # This function will read expenses from a file and summarize them
-def summarize_expenses(expense_file_path):
+def summarize_expenses(expense_file_path, budget):
     print("\n=== 💰 Expense Summary 💰 ===\n")
     with open(expense_file_path, 'r') as file:
         expenses = file.readlines()
