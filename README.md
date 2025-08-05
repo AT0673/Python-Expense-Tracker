@@ -167,7 +167,7 @@ Total Expenses: $507.40
 
 - [x] Date tracking for expenses --> Completed 05/08/2025
 - [x] Monthly/yearly expense reports --> Completed 05/08/2025
-- [ ] Budget setting and tracking
+- [x] Budget setting and tracking --> Completed 05/08/2025
 - [ ] Data visualization with charts
 - [ ] Export to different formats (JSON, Excel)
 - [ ] Search and filter functionality
