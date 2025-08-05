@@ -1,15 +1,18 @@
+from expense import Expense
+
+
 def main():
     print("Welcome to the Expense Tracker!")
     expense_file_path = "expenses.csv"
 
     #Get user input for expenses
-    get_expense_details()
+    expense = get_expense_details()
 
     #Write expenses to a file
-    write_expense_to_file()
+    write_expense_to_file(expense, expense_file_path)
 
     #Read expenses from a file and summarize them
-    summarize_expenses()
+    summarize_expenses(expense_file_path)
 
 def get_expense_details():
     print("Getting expense details...")
@@ -51,16 +54,25 @@ def get_expense_details():
     print(f"  Name    : {expense['name']}")
     print(f"  Amount  : ${expense['amount']:.2f}")
     print(f"  Category: {expense['category']}")
-
+    return expense
 
 
 def write_expense_to_file(expense, expense_file_path):
-    print(f"Saving user expense: {expense}")
+    print(f"Saving user expense: {expense} to {expense_file_path}")
+    with open(expense_file_path, 'a') as file:
+        file.write(f"{expense['name']},{expense['amount']},{expense['category']}\n")
 
 
 # This function will read expenses from a file and summarize them
-def summarize_expenses():
+def summarize_expenses(expense_file_path):
     print("Summarizing expenses...")
+    with open(expense_file_path, 'r') as file:
+        expenses = file.readlines()
+    for expense in expenses:
+        name, amount, category = expense.strip().split(',')
+        print(f"  Name    : {name}")
+        print(f"  Amount  : ${amount}")
+        print(f"  Category: {category}")
 
 
 if __name__ == "__main__":
