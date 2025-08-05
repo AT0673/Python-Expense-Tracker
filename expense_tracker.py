@@ -1,6 +1,6 @@
 def main():
     print("Welcome to the Expense Tracker!")
-    pass
+    expense_file_path = "expenses.csv"
 
     #Get user input for expenses
     get_expense_details()
@@ -40,9 +40,23 @@ def get_expense_details():
         except ValueError:
             print("Please enter a valid number.")
 
+   # Creating an Expense object and saving it
+    expense = {
+        "name": expense_name,
+        "amount": expense_amount,
+        "category": selected_category
+    }   
 
-def write_expense_to_file():
-    print("Writing expense to file...")
+    print("Expense recorded:")
+    print(f"  Name    : {expense['name']}")
+    print(f"  Amount  : ${expense['amount']:.2f}")
+    print(f"  Category: {expense['category']}")
+
+
+
+def write_expense_to_file(expense, expense_file_path):
+    print(f"Saving user expense: {expense}")
+
 
 # This function will read expenses from a file and summarize them
 def summarize_expenses():
