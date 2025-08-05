@@ -18,8 +18,17 @@ def get_expense_details():
     print("Getting expense details...")
     expense_name = input("Enter expense name: ")
     expense_amount = float(input("Enter expense amount: "))
-    print("You've entered: {expense_name}, {expense_amount}")
-    
+    expense_date = input("Enter expense date (YYYY-MM-DD): ")
+    # Validate date format
+    try:
+        from datetime import datetime
+        datetime.strptime(expense_date, '%Y-%m-%d')
+    except ValueError:
+        print("Invalid date format. Please use YYYY-MM-DD.")
+        return None
+    # Print the entered details
+    print(f"You've entered: {expense_name}, {expense_amount}, {expense_date}")
+
     expense_categories = [
         "Food",
         "Transport",
@@ -47,20 +56,22 @@ def get_expense_details():
     expense = {
         "name": expense_name,
         "amount": expense_amount,
-        "category": selected_category
+        "category": selected_category,
+        "date": expense_date
     }   
 
     print("Expense recorded:")
     print(f"  Name    : {expense['name']}")
     print(f"  Amount  : ${expense['amount']:.2f}")
     print(f"  Category: {expense['category']}")
+    print(f"  Date    : {expense['date']}")
     return expense
 
 
 def write_expense_to_file(expense, expense_file_path):
     print(f"Saving user expense: {expense} to {expense_file_path}")
     with open(expense_file_path, 'a') as file:
-        file.write(f"{expense['name']},{expense['amount']},{expense['category']}\n")
+        file.write(f"{expense['name']},{expense['amount']},{expense['category']},{expense['date']}\n")
 
 
 # This function will read expenses from a file and summarize them
@@ -79,13 +90,13 @@ def summarize_expenses(expense_file_path):
     }
 
     for expense in expenses:
-        name, amount, category = expense.strip().split(',')
+        name, amount, category, date = expense.strip().split(',')
         emoji = category_emojis.get(category, "📝")
-        print(f"{emoji} {category} - {name}: ${float(amount):.2f}")
+        print(f"{emoji} {category} - {name}: ${float(amount):.2f} on {date}")
 
     amount_by_category = {}
     for expense in expenses:
-        _, amount, category = expense.strip().split(',')
+        _, amount, category, _ = expense.strip().split(',')
         amount = float(amount)
         if category in amount_by_category:
             amount_by_category[category] += amount
