@@ -19,7 +19,7 @@ def main():
             expense = get_expense_details()
             #Write expenses to a file
             write_expense_to_file(expense, expense_file_path)
-            summarize_expenses(expense_file_path)
+            summarize_expenses(expense_file_path, budget_file_path)
         elif choice == "3":
             break
         else:
@@ -30,19 +30,19 @@ def get_budget():
     # Get user input for budget and month/year of budget and save it
     print("\n=== 💰 Set Your Budget 💰 ===")
     budget_file_path = "budget.csv"
-    with open(budget_file_path, 'w') as budget_file:
-        budget_amount = float(input("Enter your budget amount: "))
-        budget_month = input("Enter the month for this budget (YYYY-MM): ")
-        # Validate month format
-        try:
-            from datetime import datetime
-            datetime.strptime(budget_month, '%Y-%m')
-        except ValueError:
-            print("Invalid month format. Please use YYYY-MM.")
-            return None
-        # Write the budget amount and month to the file
+    budget_amount = float(input("Enter your budget amount: "))
+    budget_month = input("Enter the month for the budget (YYYY-MM): ")
+    # Validate month format
+    try:
+        from datetime import datetime
+        datetime.strptime(budget_month, '%Y-%m')
+    except ValueError:
+        print("Invalid month format. Please use YYYY-MM.")
+        return None
+    # write the budget to a file
+    with open(budget_file_path, 'a') as budget_file:
         budget_file.write(f"{budget_amount},{budget_month}\n")
-    print(f"Your budget of ${budget_amount:.2f} has been set.")
+    print(f"Budget of ${budget_amount:.2f} set for {budget_month}.")
     return budget_amount
 
 def get_expense_details():
@@ -106,7 +106,7 @@ def write_expense_to_file(expense, expense_file_path):
 
 
 # This function will read expenses from a file and summarize them
-def summarize_expenses(expense_file_path):
+def summarize_expenses(expense_file_path, budget_file_path):
     print("\n=== 💰 Expense Summary 💰 ===\n")
     with open(expense_file_path, 'r') as file:
         expenses = file.readlines()
@@ -138,6 +138,17 @@ def summarize_expenses(expense_file_path):
 
 
     # User input for summary options
+    budget_dict = {}
+    try:
+        with open(budget_file_path, 'r') as budget_file:
+            for line in budget_file:
+                if line.strip():
+                    budget_amount, budget_month = line.strip().split(',')
+                    budget_dict[budget_month] = float(budget_amount)
+    except FileNotFoundError:
+        pass  # No budgets set yet
+
+    # Main menu for summary options
     while True:
         print("\n=== 📊 Summary Options 📊 ===")
         print("1. View daily totals")
@@ -240,20 +251,6 @@ def summarize_expenses(expense_file_path):
                 year_choice = 'all'
             
             # Calculate monthly totals
-            expenses = [expense.strip() for expense in expenses if expense.strip()]
-            if not expenses:
-                print("No expenses recorded.")
-                return
-            amount_by_category = {}
-            for expense in expenses:
-                _, amount, category, date = expense.strip().split(',')
-                amount = float(amount)
-                if category in amount_by_category:
-                    amount_by_category[category] += amount
-                else:
-                    amount_by_category[category] = amount
-            
-            # Calculate monthly totals
             if year_choice != 'all':
                 expenses = [expense for expense in expenses if expense.strip().split(',')[3].startswith(year_choice)]
             else:
@@ -272,8 +269,16 @@ def summarize_expenses(expense_file_path):
                 else:
                     monthly_totals[month] = amount
             for month, total in sorted(monthly_totals.items()):
-                print(f"{month}: ${total:.2f}")
-            pass
+                budget = budget_dict.get(month)
+                if budget is not None:
+                    if total > budget:
+                        print(f"{month}: ${total:.2f} - OVER budget by ${total - budget:.2f} (Budget: ${budget:.2f})")
+                    else:
+                        print(f"{month}: ${total:.2f} - UNDER budget by ${budget - total:.2f} (Budget: ${budget:.2f})")
+                else:
+                    print(f"{month}: ${total:.2f} - No budget set")
+        
+
         elif choice == '3':
             print("\n=== 📆 Yearly Totals 📆 ===")
             from datetime import datetime
