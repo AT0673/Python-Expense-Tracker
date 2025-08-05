@@ -11,8 +11,9 @@ def main():
         print("Please select an option:")
         print("1. Set Budget")
         print("2. Add Expense")
-        print("3. Exit")
-        choice = input("Enter your choice (1-3): ")
+        print("4. View Expense Summary")
+        print("5. Exit")
+        choice = input("Enter your choice (1-5): ")
         if choice == "1":
             budget = get_budget()
         elif choice == "2":
@@ -20,7 +21,9 @@ def main():
             #Write expenses to a file
             write_expense_to_file(expense, expense_file_path)
             summarize_expenses(expense_file_path, budget_file_path)
-        elif choice == "3":
+        elif choice == "4":
+            summarize_expenses(expense_file_path, budget_file_path)
+        elif choice == "5":
             break
         else:
             print("Invalid choice. Please try again.")
@@ -111,6 +114,9 @@ def summarize_expenses(expense_file_path, budget_file_path):
     with open(expense_file_path, 'r') as file:
         expenses = file.readlines()
     
+    # Ensure monthly_totals is always defined
+    monthly_totals = {}
+
     # Dictionary for category emojis
     category_emojis = {
         "Food": "🍔",
@@ -143,12 +149,12 @@ def summarize_expenses(expense_file_path, budget_file_path):
         with open(budget_file_path, 'r') as budget_file:
             for line in budget_file:
                 if line.strip():
-                    budget_amount, budget_month = line.strip().split(',')
+                    budget_month, budget_amount = line.strip().split(',')
                     budget_dict[budget_month] = float(budget_amount)
     except FileNotFoundError:
         pass  # No budgets set yet
 
-    # Main menu for summary options
+    
     while True:
         print("\n=== 📊 Summary Options 📊 ===")
         print("1. View daily totals")
@@ -156,9 +162,10 @@ def summarize_expenses(expense_file_path, budget_file_path):
         print("3. View yearly totals")
         print("4. View category totals")
         print("5. View all expenses")
-        print("6. Exit")
-        choice = input("Enter your choice (1-6): ")
-        if choice == '6':
+        print("6. View budget comparison")
+        print("7. Exit")
+        choice = input("Enter your choice (1-7): ")
+        if choice == '7':
             print("Exiting the Expense Tracker. Goodbye!")
             break
         elif choice == '5':
@@ -251,6 +258,20 @@ def summarize_expenses(expense_file_path, budget_file_path):
                 year_choice = 'all'
             
             # Calculate monthly totals
+            expenses = [expense.strip() for expense in expenses if expense.strip()]
+            if not expenses:
+                print("No expenses recorded.")
+                return
+            amount_by_category = {}
+            for expense in expenses:
+                _, amount, category, date = expense.strip().split(',')
+                amount = float(amount)
+                if category in amount_by_category:
+                    amount_by_category[category] += amount
+                else:
+                    amount_by_category[category] = amount
+            
+            # Calculate monthly totals
             if year_choice != 'all':
                 expenses = [expense for expense in expenses if expense.strip().split(',')[3].startswith(year_choice)]
             else:
@@ -269,14 +290,8 @@ def summarize_expenses(expense_file_path, budget_file_path):
                 else:
                     monthly_totals[month] = amount
             for month, total in sorted(monthly_totals.items()):
-                budget = budget_dict.get(month)
-                if budget is not None:
-                    if total > budget:
-                        print(f"{month}: ${total:.2f} - OVER budget by ${total - budget:.2f} (Budget: ${budget:.2f})")
-                    else:
-                        print(f"{month}: ${total:.2f} - UNDER budget by ${budget - total:.2f} (Budget: ${budget:.2f})")
-                else:
-                    print(f"{month}: ${total:.2f} - No budget set")
+                print(f"{month}: ${total:.2f}")
+        # Compare the monthly totals with the budget
         
 
         elif choice == '3':
@@ -303,8 +318,32 @@ def summarize_expenses(expense_file_path, budget_file_path):
                 emoji = category_emojis.get(category, "📝")
                 print(f"{emoji} {category}: ${total:.2f}")
             pass
+
+            # Budget comparison via the budget file
+        elif choice == '6':
+            print("\n=== 📊 Budget Comparison 📊 ===")
+            if not budget_dict:
+                print("No budgets set yet.")
+                return
+            if not monthly_totals:
+                print("No expenses recorded to compare against the budget.")
+                return
+            print("Monthly budget comparison:")
+            for month, total in sorted(monthly_totals.items()):
+                if month in budget_dict:
+                    budget_amount = budget_dict[month]
+                    if total > budget_amount:
+                        print(f"{month}: Over budget by ${total - budget_amount:.2f}")
+                    else:
+                        print(f"{month}: Under budget by ${budget_amount - total:.2f}")
+                else:
+                    print(f"{month}: No budget set")
         else:
             print("Invalid choice. Please try again.")
+            continue
+    print("\nExpense summary completed.")
+    print("Thank you for using the Expense Tracker!")
+
 
 if __name__ == "__main__":
     main()
