@@ -6,15 +6,15 @@ def main():
     expense_file_path = "expenses.csv"
 
     #Get user input for expenses
-    expense = get_expense_details()
+    #expense = get_expense_details()
 
     #Write expenses to a file
-    write_expense_to_file(expense, expense_file_path)
+    #write_expense_to_file(expense, expense_file_path)
 
     #Read expenses from a file and summarize them
     summarize_expenses(expense_file_path)
 
-def get_expense_details():
+#def get_expense_details():
     print("Getting expense details...")
     expense_name = input("Enter expense name: ")
     expense_amount = float(input("Enter expense amount: "))
@@ -57,7 +57,7 @@ def get_expense_details():
     return expense
 
 
-def write_expense_to_file(expense, expense_file_path):
+#def write_expense_to_file(expense, expense_file_path):
     print(f"Saving user expense: {expense} to {expense_file_path}")
     with open(expense_file_path, 'a') as file:
         file.write(f"{expense['name']},{expense['amount']},{expense['category']}\n")
@@ -73,6 +73,15 @@ def summarize_expenses(expense_file_path):
         print(f"  Name    : {name}")
         print(f"  Amount  : ${amount}")
         print(f"  Category: {category}")
+
+    amount_by_category = {}
+    for expense in expenses:
+        _, amount, category = expense.strip().split(',')
+        amount = float(amount)
+        if category in amount_by_category:
+            amount_by_category[category] += amount
+        else:
+            amount_by_category[category] = amount
 
 
 if __name__ == "__main__":
