@@ -89,6 +89,8 @@ def summarize_expenses(expense_file_path):
         "Other": "📦"
     }
 
+    
+    
     for expense in expenses:
         name, amount, category, date = expense.strip().split(',')
         emoji = category_emojis.get(category, "📝")
@@ -102,17 +104,85 @@ def summarize_expenses(expense_file_path):
             amount_by_category[category] += amount
         else:
             amount_by_category[category] = amount
-    
-    print("\n=== 📊 Category Totals 📊 ===")
-    for category, total in amount_by_category.items():
-        emoji = category_emojis.get(category, "📝")
-        print(f"{emoji} {category}: ${total:.2f}")
-    
-    grand_total = sum(amount_by_category.values())
-    print("\n=== 💵 Grand Total 💵 ===")
-    print(f"Total Expenses: ${grand_total:.2f}")
-    print("\n" + "=" * 30 + "\n")
 
+
+    # User input for summary options
+    print("\n=== 📊 Summary Options 📊 ===")
+    print("1. View daily totals")
+    print("2. View monthly totals")
+    print("3. View yearly totals")
+    print("4. View category totals")
+    print("5. View all expenses")
+    print("6. Exit")
+    choice = input("Enter your choice (1-6): ")
+    if choice == '6':
+        print("Exiting the Expense Tracker. Goodbye!")
+        return
+    elif choice == '5':
+        print("\n=== 📋 All Expenses 📋 ===")
+        for expense in expenses:
+            name, amount, category, date = expense.strip().split(',')
+            emoji = category_emojis.get(category, "📝")
+            print(f"{emoji} {category} - {name}: ${float(amount):.2f} on {date}")
+        return
+    elif choice == '1':
+        # Daily totals
+        print("\n=== 📅 Daily Totals 📅 ===")
+        from datetime import datetime
+        daily_totals = {}
+        for expense in expenses:
+            _, amount, category, date = expense.strip().split(',')
+            amount = float(amount)
+            day = datetime.strptime(date, '%Y-%m-%d').strftime('%Y-%m-%d')
+            if day in daily_totals:
+                daily_totals[day] += amount
+            else:
+                daily_totals[day] = amount
+        for day, total in daily_totals.items():
+            print(f"{day}: ${total:.2f}")
+        return
+    elif choice == '2':
+        print("\n=== 📅 Monthly Totals 📅 ===")
+        from datetime import datetime
+        monthly_totals = {}
+        for expense in expenses:
+            _, amount, category, date = expense.strip().split(',')
+            amount = float(amount)
+            month = datetime.strptime(date, '%Y-%m-%d').strftime('%Y-%m')
+            if month in monthly_totals:
+                monthly_totals[month] += amount
+            else:
+                monthly_totals[month] = amount
+        for month, total in monthly_totals.items():
+            print(f"{month}: ${total:.2f}")
+        return
+    elif choice == '3':
+        print("\n=== 📆 Yearly Totals 📆 ===")
+        from datetime import datetime
+        yearly_totals = {}
+        for expense in expenses:
+            _, amount, category, date = expense.strip().split(',')
+            amount = float(amount)
+            year = datetime.strptime(date, '%Y-%m-%d').strftime('%Y')
+            if year in yearly_totals:
+                yearly_totals[year] += amount
+            else:
+                yearly_totals[year] = amount
+        for year, total in yearly_totals.items():
+            print(f"{year}: ${total:.2f}")
+        return
+    elif choice == '4':
+        print("\n=== 📊 Category Totals 📊 ===")
+        if not amount_by_category:
+            print("No expenses recorded.")
+            return
+        for category, total in amount_by_category.items():
+            emoji = category_emojis.get(category, "📝")
+            print(f"{emoji} {category}: ${total:.2f}")
+    elif choice not in ['1', '2', '3', '4']:
+        print("Invalid choice. Please try again.")
+        return
+    print("\nThank you for using the Expense Tracker! Have a great day! 😊")
 
 if __name__ == "__main__":
     main()
