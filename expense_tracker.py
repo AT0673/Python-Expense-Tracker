@@ -149,12 +149,24 @@ def summarize_expenses(expense_file_path, budget_file_path):
         with open(budget_file_path, 'r') as budget_file:
             for line in budget_file:
                 if line.strip():
-                    budget_month, budget_amount = line.strip().split(',')
+                    budget_amount, budget_month = line.strip().split(',')
                     budget_dict[budget_month] = float(budget_amount)
     except FileNotFoundError:
         pass  # No budgets set yet
 
-    
+    monthly_totals = {}
+    for expense in expenses:
+        try:
+            _, amount, _, date = expense.strip().split(',')
+            amount = float(amount)
+            month = date[:7]  # YYYY-MM
+            if month in monthly_totals:
+                monthly_totals[month] += amount
+            else:
+                monthly_totals[month] = amount
+        except ValueError:
+            continue
+
     while True:
         print("\n=== 📊 Summary Options 📊 ===")
         print("1. View daily totals")
@@ -162,7 +174,7 @@ def summarize_expenses(expense_file_path, budget_file_path):
         print("3. View yearly totals")
         print("4. View category totals")
         print("5. View all expenses")
-        print("6. View budget comparison")
+        print("6. View monthly budget comparison")
         print("7. Exit")
         choice = input("Enter your choice (1-7): ")
         if choice == '7':
@@ -244,56 +256,8 @@ def summarize_expenses(expense_file_path, budget_file_path):
             pass
         elif choice == '2':
             print("\n=== 📅 Monthly Totals 📅 ===")
-
-            # Ask the user for a year to filter monthly totals
-            year_choice = input("Enter a year to view monthly totals (or press Enter for all years): ").strip()
-            if year_choice:
-                from datetime import datetime
-                try:
-                    datetime.strptime(year_choice, '%Y')
-                except ValueError:
-                    print("Invalid year format. Please use YYYY.")
-                    return
-            else:
-                year_choice = 'all'
-            
-            # Calculate monthly totals
-            expenses = [expense.strip() for expense in expenses if expense.strip()]
-            if not expenses:
-                print("No expenses recorded.")
-                return
-            amount_by_category = {}
-            for expense in expenses:
-                _, amount, category, date = expense.strip().split(',')
-                amount = float(amount)
-                if category in amount_by_category:
-                    amount_by_category[category] += amount
-                else:
-                    amount_by_category[category] = amount
-            
-            # Calculate monthly totals
-            if year_choice != 'all':
-                expenses = [expense for expense in expenses if expense.strip().split(',')[3].startswith(year_choice)]
-            else:
-                year_choice = ''
-            if not expenses:
-                print(f"No expenses recorded for the year {year_choice}.")
-                return
-            print(f"Monthly totals for {year_choice if year_choice else 'all years'}:")
-            monthly_totals = {}
-            for expense in expenses:
-                _, amount, category, date = expense.strip().split(',')
-                amount = float(amount)
-                month = date[:7]  # Extract year and month (YYYY-MM)
-                if month in monthly_totals:
-                    monthly_totals[month] += amount
-                else:
-                    monthly_totals[month] = amount
             for month, total in sorted(monthly_totals.items()):
                 print(f"{month}: ${total:.2f}")
-        # Compare the monthly totals with the budget
-        
-
         elif choice == '3':
             print("\n=== 📆 Yearly Totals 📆 ===")
             from datetime import datetime
@@ -319,30 +283,29 @@ def summarize_expenses(expense_file_path, budget_file_path):
                 print(f"{emoji} {category}: ${total:.2f}")
             pass
 
-            # Budget comparison via the budget file
+            # Budget comparison via the budget file after the user picks a month to compare
         elif choice == '6':
             print("\n=== 📊 Budget Comparison 📊 ===")
-            if not budget_dict:
-                print("No budgets set yet.")
-                return
-            if not monthly_totals:
+            month_to_compare = input("Enter the month to compare (YYYY-MM): ")
+        # Validate month format
+            try:
+                from datetime import datetime
+                datetime.strptime(month_to_compare, '%Y-%m')
+            except ValueError:
+                print("Invalid month format. Please use YYYY-MM.")
+                continue
+            if month_to_compare not in budget_dict:
+                print(f"No budget set for {month_to_compare}.")
+                continue
+            if month_to_compare not in monthly_totals:
                 print("No expenses recorded to compare against the budget.")
-                return
-            print("Monthly budget comparison:")
-            for month, total in sorted(monthly_totals.items()):
-                if month in budget_dict:
-                    budget_amount = budget_dict[month]
-                    if total > budget_amount:
-                        print(f"{month}: Over budget by ${total - budget_amount:.2f}")
-                    else:
-                        print(f"{month}: Under budget by ${budget_amount - total:.2f}")
-                else:
-                    print(f"{month}: No budget set")
-        else:
-            print("Invalid choice. Please try again.")
-            continue
-    print("\nExpense summary completed.")
-    print("Thank you for using the Expense Tracker!")
+                continue
+            budget_amount = budget_dict[month_to_compare]
+            total = monthly_totals[month_to_compare]
+            if total > budget_amount:
+                print(f"{month_to_compare}: Over budget by ${total - budget_amount:.2f}")
+            else:
+                print(f"{month_to_compare}: Under budget by ${budget_amount - total:.2f}")
 
 
 if __name__ == "__main__":
