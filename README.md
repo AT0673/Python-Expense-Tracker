@@ -2,7 +2,39 @@
 
 A simple yet effective command-line expense tracking application built in Python. Track your daily expenses, categorize them, and get detailed summaries of your spending habits.
 
+## Why I Built This 🎓
+
+Im currently a University Student, and as we all know, budgeting at Univeristy is **HARD**. Between all my eating-out, partying, etc, I was quickly losing track of my finances, and often spent many days wondering where the hell it all went.
+Thus, this expense tracker was born. I wanted something I could quickly use between classes, that would store my data locally, and give me clear insights into where, and how, my money was disappearing. The categorization feature made me realise that I was spending pretty much all my money on takeaway, and the summaries became essential to review to make sure I was keeping on track, and could continue to afford life.
+
+I built this during my First-Year of Univeristy, using the fundementals I was learning in my Programming module, this just uses a different programming language to the one I was learning (Scala), this project served me well as both as a practical tool and a demonstration of the clean, functional programming principles I was learning throughout my First-year.
+
+## Requirements & Architecture 📋
+
+### Core Requirements
+This application was designed to meet my rather loose needs for a personal finance managing tool:
+
+- **User-Friendly Expense Entry**: Allow users to quickly input expenses with minimal friction
+- **Data Storage**: Save all expenses to a CSV file for long-term tracking and data portability
+- **Comprehensive Expense Summarization**: Provide clear breakdowns of spending by category and total amounts
+- **Budget Awareness**: Show spending patterns to help me stop my outrageous takeaway addiction
+- **Offline Functionality**: Work completely offline without requiring internet connectivity or external services
+
 ## Features ✨
+The application follows a clean, modular design using two main components:
+
+1. **`expense.py`** - Data Model
+   - Contains the `Expense` class that encapsulates three essential attributes:
+     - `name`: Description of the expense
+     - `category`: Spending category for organization
+     - `amount`: Monetary value of the expense
+
+2. **`expense_tracker.py`** - Application Logic
+   - Handles the complete expense tracking workflow:
+     - Interactive user input collection
+     - Data validation and processing
+     - CSV file writing and reading operations
+     - Summary generation and display formatting
 
 - **Interactive Expense Entry**: Easy-to-use command-line interface for adding expenses
 - **Category Organization**: Organize expenses into predefined categories:
