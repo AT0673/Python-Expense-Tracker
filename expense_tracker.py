@@ -24,6 +24,22 @@ def get_expense_details():
         "Entertainment",
         "Other",
     ]
+    
+    while True:
+        print("Select a category for the expense:")
+        for i, category_name in enumerate(expense_categories):
+            print(f" {i+1}. {category_name}")
+        try:
+            category_choice = int(input("Enter the number of the category: "))
+            if 1 <= category_choice <= len(expense_categories):
+                selected_category = expense_categories[category_choice - 1]
+                print(f"You selected: {selected_category}")
+                break
+            else:
+                print("Invalid choice. Please try again.")
+        except ValueError:
+            print("Please enter a valid number.")
+
 
 def write_expense_to_file():
     print("Writing expense to file...")
