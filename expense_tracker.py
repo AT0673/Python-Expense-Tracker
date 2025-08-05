@@ -13,6 +13,17 @@ def main():
 
 def get_expense_details():
     print("Getting expense details...")
+    expense_name = input("Enter expense name: ")
+    expense_amount = float(input("Enter expense amount: "))
+    print("You've entered: {expense_name}, {expense_amount}")
+    
+    expense_categories = [
+        "Food",
+        "Transport",
+        "Utilities",
+        "Entertainment",
+        "Other",
+    ]
 
 def write_expense_to_file():
     print("Writing expense to file...")
