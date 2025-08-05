@@ -4,21 +4,45 @@ from expense import Expense
 def main():
     print("Welcome to the Expense Tracker!")
     expense_file_path = "expenses.csv"
+    budget_file_path = "budget.csv"
 
     #Get user input for expenses and budget
-    budget = get_budget()
-    expense = get_expense_details()
+    while True:
+        print("Please select an option:")
+        print("1. Set Budget")
+        print("2. Add Expense")
+        print("3. Exit")
+        choice = input("Enter your choice (1-3): ")
+        if choice == "1":
+            budget = get_budget()
+        elif choice == "2":
+            expense = get_expense_details()
+            #Write expenses to a file
+            write_expense_to_file(expense, expense_file_path)
+            summarize_expenses(expense_file_path)
+        elif choice == "3":
+            break
+        else:
+            print("Invalid choice. Please try again.")
 
-    #Write expenses to a file
-    write_expense_to_file(expense, expense_file_path)
-
-    #Read expenses from a file and summarize them
-    summarize_expenses(expense_file_path, budget)
 
 def get_budget():
-    print("Getting budget details...")
-    budget_amount = float(input("Enter your budget amount: "))
-    print(f"You've set a budget of ${budget_amount:.2f} for this year.")
+    # Get user input for budget and month/year of budget and save it
+    print("\n=== 💰 Set Your Budget 💰 ===")
+    budget_file_path = "budget.csv"
+    with open(budget_file_path, 'w') as budget_file:
+        budget_amount = float(input("Enter your budget amount: "))
+        budget_month = input("Enter the month for this budget (YYYY-MM): ")
+        # Validate month format
+        try:
+            from datetime import datetime
+            datetime.strptime(budget_month, '%Y-%m')
+        except ValueError:
+            print("Invalid month format. Please use YYYY-MM.")
+            return None
+        # Write the budget amount and month to the file
+        budget_file.write(f"{budget_amount},{budget_month}\n")
+    print(f"Your budget of ${budget_amount:.2f} has been set.")
     return budget_amount
 
 def get_expense_details():
@@ -82,7 +106,7 @@ def write_expense_to_file(expense, expense_file_path):
 
 
 # This function will read expenses from a file and summarize them
-def summarize_expenses(expense_file_path, budget):
+def summarize_expenses(expense_file_path):
     print("\n=== 💰 Expense Summary 💰 ===\n")
     with open(expense_file_path, 'r') as file:
         expenses = file.readlines()
