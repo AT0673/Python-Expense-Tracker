@@ -12,8 +12,9 @@ def main():
         print("1. Set Budget")
         print("2. Add Expense")
         print("4. View Expense Summary")
-        print("5. Exit")
-        choice = input("Enter your choice (1-5): ")
+        print("5. Export Expenses to Different Format")
+        print("6. Exit")
+        choice = input("Enter your choice (1-6): ")
         if choice == "1":
             budget = get_budget()
         elif choice == "2":
@@ -24,10 +25,53 @@ def main():
         elif choice == "4":
             summarize_expenses(expense_file_path, budget_file_path)
         elif choice == "5":
+            export_expenses(expense_file_path)
+        elif choice == "6":
             break
         else:
             print("Invalid choice. Please try again.")
 
+
+def export_expenses(expense_file_path):
+    import pandas as pd
+    
+    print("\n=== 📤 Export Expenses 📤 ===")
+    print("1. Export to CSV")
+    print("2. Export to JSON")
+    print("3. Export to XML")
+    choice = input("Enter your choice (1-3): ")
+
+    if choice == "1":
+        print(f"Exporting expenses to {expense_file_path}...")
+        try:
+            df = pd.read_csv(expense_file_path, header=None, names=["Name", "Amount", "Category", "Date"])
+            df.to_csv("exported_expenses.csv", index=False)
+        except FileNotFoundError:
+            print("Expense file not found. Please add expenses first.")
+            return
+        print("Expenses exported to CSV successfully.")
+    elif choice == "2":
+        print("Exporting expenses to JSON...")
+        try:
+            df = pd.read_csv(expense_file_path, header=None, names=["Name", "Amount", "Category", "Date"])
+            df.to_json("exported_expenses.json", orient="records", lines=True)
+        except FileNotFoundError:
+            print("Expense file not found. Please add expenses first.")
+            return
+        print("Expenses exported to JSON successfully.")
+    elif choice == "3":
+        print("Exporting expenses to XML...")
+        try:
+            df = pd.read_csv(expense_file_path, header=None, names=["Name", "Amount", "Category", "Date"])
+            df.to_xml("exported_expenses.xml", index=False)
+        except FileNotFoundError:
+            print("Expense file not found. Please add expenses first.")
+            return
+        print("Expenses exported to XML successfully.")
+    else:
+        print("Invalid choice. Please try again.")
+        return
+    
 
 def get_budget():
     # Get user input for budget and month/year of budget and save it
