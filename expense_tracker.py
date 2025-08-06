@@ -175,9 +175,10 @@ def summarize_expenses(expense_file_path, budget_file_path):
         print("4. View category totals")
         print("5. View all expenses")
         print("6. View monthly budget comparison")
-        print("7. Exit")
-        choice = input("Enter your choice (1-7): ")
-        if choice == '7':
+        print("7. Visualize expenses")
+        print("8. Exit")
+        choice = input("Enter your choice (1-8): ")
+        if choice == '8':
             print("Exiting the Expense Tracker. Goodbye!")
             break
         elif choice == '5':
@@ -306,7 +307,69 @@ def summarize_expenses(expense_file_path, budget_file_path):
                 print(f"{month_to_compare}: Over budget by ${total - budget_amount:.2f}")
             else:
                 print(f"{month_to_compare}: Under budget by ${budget_amount - total:.2f}")
+        elif choice == '7':
+            print("\n=== 📊 Visualize Expenses 📊 ===")
+            import plotly.graph_objects as go
+            from plotly.subplots import make_subplots
 
+            # Create a subplot with 2 rows and 2 columns
+            fig = make_subplots(
+                rows=2, cols=2,
+                subplot_titles=("Monthly Expenses", "Category Distribution", 
+                                "Daily Expenses", "Cumulative Expense Trend"),
+                specs=[[{"type": "xy"}, {"type": "pie"}], # First row: Monthly Expenses and Category Distribution
+                       [{"type": "xy"}, {"type": "xy"}]]  # Second row: Daily Expenses and Cumulative Expense Trend
+            )
+            
+            # Monthly Expenses
+            months = list(monthly_totals.keys())
+            monthly_expenses = list(monthly_totals.values())
+            fig.add_trace(
+                go.Bar(x=months, y=monthly_expenses, name="Monthly Expenses"),
+                row=1, col=1
+            )
+
+            # Category Distribution Pie Chart
+            categories = list(amount_by_category.keys())
+            category_totals = list(amount_by_category.values())
+            fig.add_trace(
+                go.Pie(labels=categories, values=category_totals, name="Category Distribution"),
+                row=1, col=2
+            )
+
+            # Daily Expenses
+            # Sort dates for better visualization
+            expense_data = [(date, float(amount)) for _, amount, _, date in 
+                           (expense.strip().split(',') for expense in expenses)]
+            expense_data.sort(key=lambda x: x[0])  # Sort by date
+            dates, daily_expenses = zip(*expense_data)
+
+            fig.add_trace(
+                go.Scatter(x=dates, y=daily_expenses, mode='lines+markers', name="Daily Expenses"),
+                row=2, col=1
+            )
+
+            # Cumulative Expense Trend
+            cumulative_expenses = []
+            cumulative_total = 0
+            for amount in daily_expenses:
+                cumulative_total += amount
+                cumulative_expenses.append(cumulative_total)
+            fig.add_trace(
+                go.Scatter(x=dates, y=cumulative_expenses, mode='lines', name="Cumulative Expenses"),
+                row=2, col=2
+            )
+
+            # Update layout
+            fig.update_layout(
+                title_text="Expense Tracker Visualization",
+                height=800,
+                width=1200,
+                showlegend=True
+            )
+
+            # Show the figure
+            fig.show()
 
 if __name__ == "__main__":
     main()
